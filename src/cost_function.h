@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-class Trajectory;
+#include "trajectory.h"
 
 using namespace std;
 
@@ -28,6 +28,31 @@ public:
 private:
   double weight;
   CostFunctionType func;
+};
+
+class CostFunctions
+{
+public:
+  CostFunctions()
+  {
+    setup();
+  }
+
+  double calculate_cost(const Trajectory& t,
+                        const std::map<int, vector<vector<int>>>& predictions) const
+  {
+    double cost_for_state = 0;
+    for (const auto& cost_function : cost_functions)
+    {
+      cost_for_state += cost_function.calculate_cost(t, predictions);
+    }
+    return cost_for_state;
+  }
+
+private:
+  void setup();
+
+  std::vector<CostFunction> cost_functions;
 };
 
 #endif

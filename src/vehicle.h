@@ -12,8 +12,6 @@
 #include <string>
 #include <iterator>
 
-#include "cost_function.h"
-
 using namespace std;
 
 class Trajectory;
@@ -36,7 +34,6 @@ public:
   int goal_lane;
   int goal_s;
   string state;
-  std::vector<CostFunction> cost_functions;
   /**
   * Constructor
   */
@@ -73,8 +70,6 @@ public:
   void realize_lane_change(map<int,vector< vector<int> > > predictions, string direction);
   void realize_prep_lane_change(map<int,vector< vector<int> > > predictions, string direction);
   vector<vector<int> > generate_predictions(int horizon);
-private:
-  void setup_cost_functions();
 };
 
 #endif

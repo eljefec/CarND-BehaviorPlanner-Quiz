@@ -8,8 +8,11 @@
 #include <string>
 #include <iterator>
 
+#include "cost_function.h"
 #include "state_cost.h"
 #include "trajectory.h"
+
+static CostFunctions cost_functions;
 
 /**
  * Initializes Vehicle
@@ -40,15 +43,6 @@ set<string> get_successor_states(const string& state)
         return { "KL", "PLCR", "LCR" };
     }
     return { "KL" };
-}
-
-void Vehicle::setup_cost_functions()
-{
-    CostFunctionType simple = [] (const Trajectory& t, const map<int, vector<vector<int>>>& predictions)
-    {
-        return 1.0;
-    };
-    cost_functions.emplace_back(CostFunction(0.5, simple));
 }
 
 // TODO - Implement this method.
@@ -86,14 +80,13 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
     for (const auto& succ : successor_states)
     {
         auto trajectory_for_state = generate_trajectory(succ, predictions);
-        double cost_for_state = 0;
-        for (const auto& cost_function : cost_functions)
-        {
-            cost_for_state += cost_function.calculate_cost(trajectory_for_state, predictions);
-        }
+
+        double cost_for_state = cost_functions.calculate_cost(trajectory_for_state, predictions);
+
         state_costs.add(StateCost(cost_for_state, succ));
     }
     state = state_costs.get_best_state();
+    cout << state_costs;
     cout << "Updated state: " << state << endl;
 }
 

@@ -129,7 +129,7 @@ void Road::display(int timestep) {
     ostringstream oss;
     oss << "+Meters ======================+ step: " << timestep << endl;
     int i = s_min;
-    for(int lj = 0; lj < road.size(); lj++)
+    for(size_t lj = 0; lj < road.size(); lj++)
     {
         if(i%20 ==0)
     	{
@@ -148,7 +148,7 @@ void Road::display(int timestep) {
     		oss << "      ";
     	}          
     	i++;
-    	for(int li = 0; li < road[0].size(); li++)
+    	for(size_t li = 0; li < road[0].size(); li++)
     	{
     		oss << "|" << road[lj][li];
     	}
@@ -186,7 +186,6 @@ void Road::cull() {
 	map<int, Vehicle>::iterator it = this->vehicles.begin();
     while(it != this->vehicles.end())
     {
-    	int v_id = it->first;
         Vehicle v = it->second;
         vector<int> claim_pair = {v.lane,v.s};
         claimed.insert(claim_pair);
