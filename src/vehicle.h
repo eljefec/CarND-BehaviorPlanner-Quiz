@@ -12,28 +12,11 @@
 #include <string>
 #include <iterator>
 
+#include "cost_function.h"
+
 using namespace std;
 
 class Trajectory;
-
-typedef std::function<double(const Trajectory& t, const map<int, vector<vector<int>>>& predictions)> CostFunctionType;
-
-class CostFunction
-{
-public:
-  CostFunction(double weight, const CostFunctionType& func)
-    : weight(weight),
-      func(func)
-  {
-  }
-  double calculate_cost(const Trajectory& t, const map<int, vector<vector<int>>>& predictions) const
-  {
-    return weight * func(t, predictions);
-  }
-private:
-  double weight;
-  CostFunctionType func;
-};
 
 class Vehicle {
 public:
@@ -92,12 +75,6 @@ public:
   vector<vector<int> > generate_predictions(int horizon);
 private:
   void setup_cost_functions();
-};
-
-class Trajectory
-{
-public:
-  vector<Vehicle> positions;
 };
 
 #endif

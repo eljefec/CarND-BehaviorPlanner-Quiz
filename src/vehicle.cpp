@@ -8,6 +8,8 @@
 #include <string>
 #include <iterator>
 
+#include "trajectory.h"
+
 /**
  * Initializes Vehicle
  */
