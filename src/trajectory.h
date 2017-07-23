@@ -6,7 +6,13 @@
 class Trajectory
 {
 public:
-  vector<Vehicle> positions;
+  Trajectory(const Vehicle& future)
+    : future(future)
+  {
+  }
+
+private:
+  Vehicle future;
 };
 
 #endif

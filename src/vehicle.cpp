@@ -100,10 +100,9 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
 Trajectory Vehicle::generate_trajectory(const string& state, const map<int, vector <vector<int> > >& predictions)
 {
     static const int TIMESTEPS = 10;
-    Trajectory t;
+    Vehicle future(*this);
     for (int i = 0; i < TIMESTEPS; i++)
     {
-        Vehicle future(*this);
         if (i == 0)
         {
             future.state = state;
@@ -115,7 +114,7 @@ Trajectory Vehicle::generate_trajectory(const string& state, const map<int, vect
         future.realize_state(predictions);
         future.increment(1);
     }
-    return t;
+    return Trajectory(future);
 }
 
 void Vehicle::configure(vector<int> road_data) {
