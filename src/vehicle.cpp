@@ -8,6 +8,7 @@
 #include <string>
 #include <iterator>
 
+#include "state_cost.h"
 #include "trajectory.h"
 
 /**
@@ -39,29 +40,6 @@ set<string> get_successor_states(const string& state)
         return { "KL", "PLCR", "LCR" };
     }
     return { "KL" };
-}
-
-class StateCost
-{
-public:
-    StateCost(double cost, const string& state)
-        : cost(cost),
-          state(state)
-    {
-    }
-    const string& get_state()
-    {
-        return state;
-    }
-private:
-    double cost;
-    string state;
-    friend bool operator<(const StateCost& a, const StateCost& b);
-};
-
-bool operator<(const StateCost& a, const StateCost& b)
-{
-    return (a.cost < b.cost);
 }
 
 void Vehicle::setup_cost_functions()
@@ -103,7 +81,7 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
     }
     */
     state = "KL"; // this is an example of how you change state.
-    std::vector<StateCost> state_costs;
+    StateCosts state_costs;
     auto successor_states = get_successor_states(state);
     for (const auto& succ : successor_states)
     {
@@ -113,22 +91,27 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
         {
             cost_for_state += cost_function.calculate_cost(trajectory_for_state, predictions);
         }
-        state_costs.emplace_back(StateCost(cost_for_state, succ));
+        state_costs.add(StateCost(cost_for_state, succ));
     }
-    std::make_heap(state_costs.begin(), state_costs.end());
-    state = state_costs.back().get_state();
+    state = state_costs.get_best_state();
     cout << "Updated state: " << state << endl;
 }
 
 Trajectory Vehicle::generate_trajectory(const string& state, const map<int, vector <vector<int> > >& predictions)
 {
     static const int TIMESTEPS = 10;
-    // TODO: Implement.
     Trajectory t;
     for (int i = 0; i < TIMESTEPS; i++)
     {
         Vehicle future(*this);
-        future.state = state;
+        if (i == 0)
+        {
+            future.state = state;
+        }
+        else
+        {
+            future.state = "KL";
+        }
         future.realize_state(predictions);
         future.increment(1);
     }
