@@ -55,8 +55,16 @@ public:
   * Destructor
   */
   virtual ~Vehicle();
-  void update_state(map<int, vector <vector<int> > > predictions);
-  Trajectory generate_trajectory(const string& state, const map<int, vector <vector<int> > >& predictions);
+
+  static const int TRAJECTORY_TIMESTEPS = 5;
+
+  void update_state(const map<int, vector<vector<int>>>& predictions,
+                    int timesteps = TRAJECTORY_TIMESTEPS);
+
+  Trajectory generate_trajectory(const string& state,
+                                 const map<int, vector<vector<int>>>& predictions,
+                                 int timesteps = TRAJECTORY_TIMESTEPS);
+
   void configure(vector<int> road_data);
   string display();
   void increment(int dt);

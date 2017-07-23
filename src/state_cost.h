@@ -29,7 +29,8 @@ private:
 
 bool operator<(const StateCost& a, const StateCost& b)
 {
-    return (a.cost < b.cost);
+    // make_heap puts highest value first, so switch sign so lowest cost is at top of heap.
+    return (a.cost > b.cost);
 }
 
 ostream& operator<<(ostream& os, const StateCost& sc)
@@ -44,7 +45,7 @@ public:
     string get_best_state()
     {
         std::make_heap(state_costs.begin(), state_costs.end());
-        return state_costs.back().get_state();
+        return state_costs.front().get_state();
     }
 
     void add(const StateCost&& state_cost)

@@ -36,17 +36,17 @@ set<string> get_successor_states(const string& state)
     }
     else if (state == "PLCL")
     {
-        return { "KL", "PLCL", "LCL" };
+        return { "KL", "LCL" };
     }
     else if (state == "PLCR")
     {
-        return { "KL", "PLCR", "LCR" };
+        return { "KL", "LCR" };
     }
     return { "KL" };
 }
 
-// TODO - Implement this method.
-void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
+void Vehicle::update_state(const map<int, vector<vector<int>>>& predictions, int timesteps)
+{
     /*
     Updates the "state" of the vehicle by assigning one of the
     following values to 'self.state':
@@ -74,12 +74,11 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
       ]
     }
     */
-    state = "KL"; // this is an example of how you change state.
     StateCosts state_costs;
     auto successor_states = get_successor_states(state);
     for (const auto& succ : successor_states)
     {
-        auto trajectory_for_state = generate_trajectory(succ, predictions);
+        auto trajectory_for_state = generate_trajectory(succ, predictions, timesteps);
 
         double cost_for_state = cost_functions.calculate_cost(trajectory_for_state, predictions);
 
@@ -87,26 +86,38 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
     }
     state = state_costs.get_best_state();
     cout << state_costs;
-    cout << "Updated state: " << state << endl;
+    cout << "Best state: " << state << ", timesteps: " << timesteps << endl << endl;
 }
 
-Trajectory Vehicle::generate_trajectory(const string& state, const map<int, vector <vector<int> > >& predictions)
+map<int, vector<vector<int>>> pop_front(const map<int, vector<vector<int>>>& predictions)
 {
-    static const int TIMESTEPS = 10;
-    Vehicle future(*this);
-    for (int i = 0; i < TIMESTEPS; i++)
+    auto popped(predictions);
+
+    for (auto& pair : popped)
     {
-        if (i == 0)
-        {
-            future.state = state;
-        }
-        else
-        {
-            future.state = "KL";
-        }
+        auto& vec = pair.second;
+        vec.erase(vec.begin());
+    }
+
+    return popped;
+}
+
+Trajectory Vehicle::generate_trajectory(const string& state,
+                                        const map<int, vector<vector<int>>>& predictions,
+                                        int timesteps)
+{
+    Vehicle future(*this);
+    future.state = state;
+    future.realize_state(predictions);
+    future.increment(1);
+
+    for (int i = 0; i < timesteps; i++)
+    {
+        future.update_state(pop_front(predictions), 0);
         future.realize_state(predictions);
         future.increment(1);
     }
+
     return Trajectory(future);
 }
 
@@ -233,7 +244,7 @@ int Vehicle::_max_accel_for_lane(map<int,vector<vector<int> > > predictions, int
                 leading = in_front[i];
             }
         }
-        
+
         int next_pos = leading[1][1];
         int my_next = s + this->v;
         int separation_next = next_pos - my_next;
